@@ -1,0 +1,65 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Happy Birthday</title>
+<style>
+  html,body{
+    height:100%; margin:0; overflow:hidden;
+    font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,"Helvetica Neue",Arial;
+    background: linear-gradient(180deg, #ffd6e8 0%, #ffe6cc 100%);
+    color:#3b246b;
+  }
+  .container{
+    display:flex; flex-direction:column;
+    align-items:center; justify-content:center;
+    height:100%;
+  }
+  .letter{
+    max-width:500px; width: 30%;
+    background:linear-gradient(180deg,#f7d9ff,#e0bbff);
+    border:1px solid rgba(59,36,107,0.12);
+    border-radius:16px; padding:24px 20px;
+    box-shadow:0 10px 30px rgba(59,36,107,0.15);
+    cursor:pointer; text-align:center;
+  }
+  h2{margin:0 0 6px; font-size:24px; color:#3b246b;}
+  .meta{color:#6a5aa0; margin:4px 0 16px;}
+  .body{line-height:1.85; font-size:18px;}
+  .gif{
+    display:block; width:50%; max-width:220px;
+    margin:15px auto; border-radius:12px;
+    box-shadow:0 0 15px rgba(59,36,107,0.15);
+  }
+  .hint{
+    color:#4b3b85; font-size:14px; margin-top:20px; text-align:center;
+  }
+</style>
+</head>
+<body>
+  <div class="container">
+    <article class="letter" id="letter">
+      <h2>Happy Birthday~~~<br>
+      哈比暴富Day!!!🎂
+      </h2>
+
+      <div class="body">
+        <p>May all of your birthday wishes come true!</p>
+        <img src="./images/yier.gif" alt="yier dancing" class="gif">
+        <img src="./images/quby.gif" alt="yier dancing" class="gif">
+      </div>
+    </article>
+
+    <div class="hint">给你的讯息在下一页<br>
+      （点击信封继续）
+    </div>
+  </div>
+
+<script>
+  document.getElementById('letter').addEventListener('click', ()=>{
+    location.href='letter.html';
+  });
+</script>
+</body>
+</html>
