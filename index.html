@@ -16,12 +16,12 @@
   .wrap{
     height:100%;
     display:flex;align-items:center;justify-content:center;flex-direction:column;gap:18px;
-    padding:16px; /* small breathing room on phones */
+    padding:16px; 
   }
   .envelope{
-    --env-w: min(500px, 92vw);   /* max 500px, but shrink to 92% of viewport on phones */
+    --env-w: min(500px, 92vw);  
     width: var(--env-w);
-    height: calc(var(--env-w) * 0.68); /* preserve proportions */
+    height: calc(var(--env-w) * 0.68); 
     position:relative;cursor:pointer;perspective:1200px;
   }
   .env-body{position:absolute;inset:0;background:linear-gradient(180deg,#f7d9ff,#e0bbff); border:1px solid rgba(0,0,0,0.05);}
