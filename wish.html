@@ -15,6 +15,8 @@
     display:flex;flex-direction:column;align-items:center;justify-content:center;
     min-height:100svh;
     padding:16px;
+    position:relative;
+    z-index: 2; 
   }
   .letter{
     width: clamp(320px, 92vw, 500px);
@@ -25,7 +27,6 @@
     cursor:pointer;text-align:center;
   }
   h2{margin:0 0 6px; font-size:24px; color:#3b246b;}
-  .meta{color:#6a5aa0; margin:4px 0 16px;}
   .body{line-height:1.85; font-size:18px;}
   .gif{
     display:block;
@@ -34,34 +35,171 @@
     border-radius:12px;
     box-shadow:0 0 15px rgba(59,36,107,0.15);
   }
+  .page{
+    transition: opacity .45s ease, transform .45s ease;
+  }
+  .page.closing{
+    opacity: 0;
+    transform: scale(.98);
+  }
   .hint{
     color:#4b3b85; font-size:14px; margin-top:20px; text-align:center;
+  }
+  .balloon {
+    position: fixed;
+    bottom: -10vh;
+    font-size: clamp(22px, 5vw, 34px);
+    animation: rise var(--t, 9s) linear forwards;
+    filter: drop-shadow(0 6px 10px rgba(0,0,0,.12));
+    z-index: 1;
+    user-select: none;
+    pointer-events: none;
+  }
+  @keyframes rise {
+    0%   { transform: translateY(0) translateX(0) rotate(0deg); opacity:.9; }
+    60%  { opacity: 1; }
+    100% { transform: translateY(-120vh) translateX(var(--x, 0)) rotate(var(--r, 0)); opacity:0; }
+  }
+  #confetti {
+    position: fixed;
+    inset: 0;
+    width: 100vw;
+    height: 100vh;
+    z-index: 1;    
+    pointer-events: none;
   }
 </style>
 </head>
 <body>
-  <div class="container">
-    <article class="letter" id="letter">
-      <h2>Happy Birthday~~~<br>
-      哈比暴富Day!!!🎂
-      </h2>
+  <canvas id="confetti"></canvas>
 
-      <div class="body">
-        <p>May all of your birthday wishes come true!</p>
-        <img src="./images/yier.gif" alt="yier dancing" class="gif">
-        <img src="./images/quby.gif" alt="yier dancing" class="gif">
-      </div>
-    </article>
-
-    <div class="hint">给你的讯息在下一页<br>
-      （点击信封继续）
+  <div class="page" id="page">
+    <div class="container">
+      <article class="letter" id="letter">
+        <h2>Happy Birthday~~~<br>哈比暴富Day!!! 🎂</h2>
+        <div class="body">
+          <p>May all of your birthday wishes come true!</p>
+          <img src="./images/yier.gif" alt="yier dancing" class="gif">
+          <img src="./images/quby.gif" alt="quby dancing" class="gif">
+        </div>
+      </article>
+      <div class="hint">（点击信封继续）</div>
     </div>
   </div>
 
 <script>
-  document.getElementById('letter').addEventListener('click', ()=>{
-    location.href='letter.html';
+const page = document.getElementById('page') || document.body;
+const card = document.getElementById('letter') || document.body;
+
+function goNext() {
+  if (window.top && window.top !== window) {
+    window.top.postMessage({ type: 'NAV', href: 'letter.html' }, '*');
+  } else {
+    location.href = 'letter.html';
+  }
+}
+if (card && page && page.classList) {
+  card.addEventListener('click', () => {
+    page.classList.add('closing');
+    setTimeout(goNext, 450);
   });
+}
+
+(function(){
+  const canvas = document.getElementById('confetti');
+  const ctx = canvas.getContext('2d');
+  let w, h, dpr;
+  function resize(){
+    dpr = Math.max(1, window.devicePixelRatio || 1);
+    w = canvas.width = Math.floor(window.innerWidth * dpr);
+    h = canvas.height = Math.floor(window.innerHeight * dpr);
+    canvas.style.width = '100vw';
+    canvas.style.height = '100vh';
+    ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+  }
+  resize();
+  window.addEventListener('resize', resize);
+
+  const colors = ['#ff99aa','#ffd166','#80ed99','#85c7f2','#c299ff','#ffa8e2'];
+  const pieces = [];
+  const GRAVITY = 0.18;
+  const DRAG = 0.004;
+  const SPREAD = 1.2;
+
+  function spawnBurst(cx, cy, count=80, power=6){
+    for (let i=0;i<count;i++){
+      const angle = Math.random() * Math.PI * 2;
+      const speed = (power + Math.random()*power) * (0.6 + Math.random()*0.6);
+      pieces.push({
+        x: cx + (Math.random()-0.5)*12,
+        y: cy + (Math.random()-0.5)*12,
+        vx: Math.cos(angle) * speed,
+        vy: Math.sin(angle) * speed - 2,
+        w: 4 + Math.random()*4,
+        h: 8 + Math.random()*10,
+        rot: Math.random()*Math.PI,
+        vr: (Math.random()-0.5)*0.2,
+        color: colors[(Math.random()*colors.length)|0],
+        life: 0,
+        ttl: 240 + (Math.random()*120|0)
+      });
+    }
+  }
+
+  function tick(){
+    ctx.clearRect(0,0,canvas.width,canvas.height);
+    for (let i=pieces.length-1;i>=0;i--){
+      const p = pieces[i];
+      p.vx *= (1 - DRAG);
+      p.vy += GRAVITY;
+      p.x += p.vx * SPREAD;
+      p.y += p.vy * SPREAD;
+      p.rot += p.vr;
+      p.life++;
+
+      ctx.save();
+      ctx.translate(p.x, p.y);
+      ctx.rotate(p.rot + Math.sin(p.life*0.2)*0.2);
+      ctx.fillStyle = p.color;
+      ctx.fillRect(-p.w/2, -p.h/2, p.w, p.h);
+      ctx.restore();
+
+      if (p.y > h/dpr + 30 || p.life > p.ttl) pieces.splice(i,1);
+    }
+    raf = requestAnimationFrame(tick);
+  }
+  let raf = requestAnimationFrame(tick);
+
+  function openShow(){
+    const cx = window.innerWidth/2;
+    const cy = window.innerHeight*0.35;
+    spawnBurst(cx, cy, 90, 7);
+    setTimeout(()=>spawnBurst(cx-120, cy+20, 70, 6), 200);
+    setTimeout(()=>spawnBurst(cx+120, cy+10, 70, 6), 380);
+    const drizzle = setInterval(()=>{
+      spawnBurst(Math.random()*window.innerWidth, -10, 10, 3.5);
+    }, 120);
+    setTimeout(()=>clearInterval(drizzle), 2000);
+  }
+  requestAnimationFrame(openShow);
+})();
+
+(function(){
+  const colors = ['🎈','🎉','🎊','🎈','🎈'];
+  for (let i=0; i<10; i++){
+    const b = document.createElement('div');
+    b.className = 'balloon';
+    b.textContent = colors[i % colors.length];
+    b.style.left = Math.random()*100 + 'vw';
+    b.style.setProperty('--x', (Math.random()*60 - 30) + 'px');
+    b.style.setProperty('--r', (Math.random()*40 - 20) + 'deg');
+    b.style.setProperty('--t', (8 + Math.random()*4) + 's');
+    b.style.animationDelay = (Math.random()*2) + 's';
+    document.body.appendChild(b);
+
+    setTimeout(()=>b.remove(), 13000);
+  }
+})();
 </script>
 </body>
 </html>
