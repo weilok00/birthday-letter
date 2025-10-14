@@ -5,23 +5,21 @@
 <meta name="viewport" content="width=device-width, initial-scale=1" />
 <title>To Hui Wen</title>
 <style>
-  :root{--bg:#0b1220;--card:#071022;--accent:#ffd89b;--text:#e6eef8;}
   html,body{
-    height:100%;margin:0;
+    height:100%;margin:0;overflow:hidden;
     background: linear-gradient(180deg, #ffd6e8 0%, #ffe6cc 100%);
-    color: #1f1f3a;
+    color:#3b246b;
     font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,"Helvetica Neue",Arial;
-    color: #3b246b;overflow:hidden;
   }
   .wrap{
     height:100%;
     display:flex;align-items:center;justify-content:center;flex-direction:column;gap:18px;
-    padding:16px; 
+    padding:16px;
   }
   .envelope{
-    --env-w: min(500px, 92vw);  
+    --env-w: min(500px, 92vw);
     width: var(--env-w);
-    height: calc(var(--env-w) * 0.68); 
+    height: calc(var(--env-w) * 0.68);
     position:relative;cursor:pointer;perspective:1200px;
   }
   .env-body{position:absolute;inset:0;background:linear-gradient(180deg,#f7d9ff,#e0bbff); border:1px solid rgba(0,0,0,0.05);}
@@ -35,15 +33,19 @@
     position:absolute;top:40%;left:50%;transform:translateX(-50%);
     background:radial-gradient(circle,#ffd6e8,#f2b6c8); color:#4a2b2b;
     border-radius:50%;width:100px;height:100px;
-    display:flex;align-items:center;justify-content:center;color: #3b246b;;font-weight:700;
-    font-size:20px; text-align:center;
+    display:flex;align-items:center;justify-content:center;font-weight:700;font-size:20px;text-align:center;
   }
   .open .env-flap{transform:rotateX(-180deg);}
   .hint{font-size:16px;color:#4b3b85;}
+  #stage{
+    position:fixed; inset:0;
+    width:100%; height:100%;
+    border:0; display:none; background:transparent;
+  }
 </style>
 </head>
 <body>
-  <div class="wrap">
+  <div class="wrap" id="landing">
     <div class="envelope" id="envelope">
       <div class="env-body"></div>
       <div class="env-flap"></div>
@@ -52,23 +54,97 @@
     <div class="hint">点一下信封即可打开</div>
   </div>
 
-<audio id="bgm" src="./audio/canon.mp3" preload="auto" loop></audio>
+  <audio id="bgm" src="./audio/canon.mp3" preload="auto" loop playsinline></audio>
+  <iframe id="stage" title="stage"></iframe>
+
+  <style>
+  #muteBtn{
+    position: fixed; right: 12px; bottom: 12px; z-index: 10000;
+    padding: 10px 12px; border: 0; border-radius: 9999px; cursor: pointer;
+    background: rgba(255,255,255,0.85);
+    box-shadow: 0 6px 18px rgba(0,0,0,0.12);
+    font-size: 16px; color: #3b246b;
+  }
+  #muteBtn:active { transform: translateY(1px); }
+</style>
 
 <script>
-  const env = document.getElementById('envelope');
-  const bgm = document.getElementById('bgm');
+  const savedMuted = sessionStorage.getItem('bgmMuted');
+  if (savedMuted === '1') bgm.muted = true;
 
-  env.addEventListener('click', async () => {
-    sessionStorage.setItem('bgmShouldPlay', '1');
-    sessionStorage.setItem('bgmTime', '0');
+  const muteBtn = document.createElement('button');
+  muteBtn.id = 'muteBtn';
 
-    try { await bgm.play(); } catch(e) {}
+  const applyIcon = () => {
+    muteBtn.textContent = bgm.muted ? '🔇 静音' : '🔊 播放中';
+  };
+  applyIcon();
+  document.body.appendChild(muteBtn);
 
-    env.classList.add('open');
-    setTimeout(()=>{ location.href='wish.html'; }, 900); 
+  muteBtn.addEventListener('click', () => {
+    bgm.muted = !bgm.muted;
+    sessionStorage.setItem('bgmMuted', bgm.muted ? '1' : '0');
+    applyIcon();
   });
+
+  window.addEventListener('keydown', (e) => {
+    if (e.key.toLowerCase() === 'm') muteBtn.click();
+  });
+
+  bgm.addEventListener('volumechange', applyIcon);
 </script>
 
+<script>
+  const env    = document.getElementById('envelope');
+  const stage  = document.getElementById('stage');
+  const landing= document.getElementById('landing');
+  const bgm    = document.getElementById('bgm');
+
+  const saved = parseFloat(sessionStorage.getItem('bgmTime') || '0');
+  if (Number.isFinite(saved)) bgm.currentTime = saved;
+
+  const save = () => sessionStorage.setItem('bgmTime', String(bgm.currentTime));
+  const timer = setInterval(save, 1000);
+  window.addEventListener('beforeunload', () => { save(); clearInterval(timer); });
+
+  env.addEventListener('click', async () => {
+    env.classList.add('open');
+
+    try {
+      bgm.muted = false;
+      bgm.volume = 1;
+      await bgm.play();
+    } catch (e) {
+      try { bgm.muted = true; await bgm.play(); setTimeout(() => bgm.muted = false, 120); } catch (_) {}
+    }
+
+    setTimeout(() => {
+      stage.style.display = 'block';
+      landing.style.display = 'none';
+      stage.src = 'wish.html';
+    }, 900);
+  });
+
+  window.addEventListener('message', (ev) => {
+    if (!ev.data) return;
+
+    if (ev.data.type === 'NAV' && typeof ev.data.href === 'string') {
+      stage.src = ev.data.href;
+
+    } else if (ev.data.type === 'CLOSE_STAGE') {
+      stage.style.display = 'none';
+      stage.src = 'about:blank';            
+
+      landing.style.display = 'flex';
+
+      env.classList.remove('open');
+
+      void env.offsetWidth;
+
+      window.scrollTo(0, 0);
+    }
+  });
+  bgm.addEventListener('error', () => console.log('Audio error code:', bgm.error && bgm.error.code));
+</script>
 </body>
 </html>
-
