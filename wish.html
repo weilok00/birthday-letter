@@ -12,24 +12,26 @@
     color:#3b246b;
   }
   .container{
-    display:flex; flex-direction:column;
-    align-items:center; justify-content:center;
-    height:100%;
+    display:flex;flex-direction:column;align-items:center;justify-content:center;
+    min-height:100svh;
+    padding:16px;
   }
   .letter{
-    max-width:500px; width: 30%;
+    width: clamp(320px, 92vw, 500px);
     background:linear-gradient(180deg,#f7d9ff,#e0bbff);
     border:1px solid rgba(59,36,107,0.12);
-    border-radius:16px; padding:24px 20px;
+    border-radius:16px;padding:20px 18px;
     box-shadow:0 10px 30px rgba(59,36,107,0.15);
-    cursor:pointer; text-align:center;
+    cursor:pointer;text-align:center;
   }
   h2{margin:0 0 6px; font-size:24px; color:#3b246b;}
   .meta{color:#6a5aa0; margin:4px 0 16px;}
   .body{line-height:1.85; font-size:18px;}
   .gif{
-    display:block; width:50%; max-width:220px;
-    margin:15px auto; border-radius:12px;
+    display:block;
+    width: clamp(120px, 50vw, 220px);
+    margin:12px auto;
+    border-radius:12px;
     box-shadow:0 0 15px rgba(59,36,107,0.15);
   }
   .hint{
@@ -46,8 +48,8 @@
 
       <div class="body">
         <p>May all of your birthday wishes come true!</p>
-        <img src="https://github.com/weilok00/birthday-letter/tree/main/images/yier.gif" alt="yier dancing" class="gif">
-        <img src="https://github.com/weilok00/birthday-letter/tree/main/images/quby.gif" class="gif">
+        <img src="./images/yier.gif" alt="yier dancing" class="gif">
+        <img src="./images/quby.gif" alt="yier dancing" class="gif">
       </div>
     </article>
 
@@ -63,4 +65,3 @@
 </script>
 </body>
 </html>
-
