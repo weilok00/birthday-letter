@@ -13,9 +13,15 @@
     font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,"Helvetica Neue",Arial;
     color: #3b246b;overflow:hidden;
   }
-  .wrap{height:100%;display:flex;align-items:center;justify-content:center;flex-direction:column;gap:18px;}
+  .wrap{
+    height:100%;
+    display:flex;align-items:center;justify-content:center;flex-direction:column;gap:18px;
+    padding:16px; /* small breathing room on phones */
+  }
   .envelope{
-    width:500px;height:340px; 
+    --env-w: min(500px, 92vw);   /* max 500px, but shrink to 92% of viewport on phones */
+    width: var(--env-w);
+    height: calc(var(--env-w) * 0.68); /* preserve proportions */
     position:relative;cursor:pointer;perspective:1200px;
   }
   .env-body{position:absolute;inset:0;background:linear-gradient(180deg,#f7d9ff,#e0bbff); border:1px solid rgba(0,0,0,0.05);}
