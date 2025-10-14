@@ -5,62 +5,52 @@
 <meta name="viewport" content="width=device-width, initial-scale=1" />
 <title>Letter</title>
 <style>
-    html,body{
+  html,body{
     height:100%; margin:0;
     font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,"Helvetica Neue",Arial;
     background: linear-gradient(180deg, #ffd6e8 0%, #ffe6cc 100%);
     color:#3b246b;
-    background-attachment: fixed; 
-    }
-    .wrap{
-    min-height:100%;
-    display:flex;
-    align-items:center;
-    justify-content:center;
+    background-attachment: fixed;
+  }
+  .wrap{
+    min-height:100svh;
+    display:flex;align-items:center;justify-content:center;
     padding:20px;
-    }
-    .letter{
-    max-width:500px; width:30%;
+  }
+  .letter{
+    width: clamp(320px, 92vw, 500px);
     background:linear-gradient(180deg,#f7d9ff,#e0bbff);
     border:1px solid rgba(59,36,107,0.12);
-    border-radius:16px; padding:24px 20px;
+    border-radius:16px;padding:20px 18px;
     box-shadow:0 10px 30px rgba(59,36,107,0.15);
     cursor:pointer;
     transform-origin:center;
-    }
-    .page {
-    transition: opacity 0.8s ease, transform 0.8s ease;
-    }
-
-    .page.closing {
-    opacity: 0;
-    transform: scale(0.9);
-    }
-    h2{margin:0 0 6px;font-size:24px;text-align:center;color:#3b246b;}
-    .meta{color:#6a5aa0;margin:4px 0 16px;text-align:center;}
-    .body{line-height:1.85;font-size:16px;text-align:center;}
-    .body img{
-    display:block;width:30%;max-width:150px;
-    border-radius:12px;margin:20px auto;
+  }
+  .page { transition: opacity 0.8s ease, transform 0.8s ease; }
+  .page.closing { opacity: 0; transform: scale(0.9); }
+  h2{margin:0 0 6px;font-size:24px;text-align:center;color:#3b246b;}
+  .body{line-height:1.85;font-size:16px;text-align:center;}
+  .body img{
+    display:block;
+    width: clamp(90px, 28vw, 120px); 
+    max-width: none;
+    border-radius:12px;
+    margin:16px auto;
     box-shadow:0 0 20px rgba(59,36,107,0.12);
-    }
-    .highlight{
+  }
+  .highlight{
     font-weight:700;font-size:18px;color:#4b3b85;
     display:block;text-align:center;margin:16px 0;
-    }
-    .heart{
+  }
+  .heart{
     position:absolute;color:#ff99aa;font-size:18px;
     animation:floatUp 4s linear infinite;opacity:.8;
-    }
-    @keyframes floatUp{
+  }
+  @keyframes floatUp{
     0%{transform:translateY(0) scale(1);opacity:.8;}
     100%{transform:translateY(-150px) scale(1.5);opacity:0;}
-    }
-    .hint {
-    color: #4b3b85;
-    font-size: 14px;
-    text-align: center;   /* optional breathing space at bottom */
-    }
+  }
+  .hint { color:#4b3b85; font-size:14px; text-align:center; }
 </style>
 </head>
 <body>
@@ -77,11 +67,11 @@
           以前的我或许不太懂，但现在我懂了。
         </p>
 
-        <p>我慢慢明白，原来喜欢一个人，<br>
-          不一定要一直追着她，要她回应，<br>
+        <p>我渐渐明白，喜欢一个人，<br>
+          其实不一定要一直追着她，要她回应，<br>
           有时候，静静地在原地守着，<br>
           反而更能让彼此安心。<br>
-          我反思了很多以前的自己，<br>
+          我反思了以前的自己，<br>
           也许我太急、太想靠近，<br>
           反而让你觉得有压力。
         </p>
@@ -90,14 +80,14 @@
           也想过就这样放下。<br>
           可每当我真的想放下的时候，<br>
           我发现我还是会想到你，<br>
-          单纯地想起你那爱笑的眼睛。
+          想起你那双爱笑的眼睛。🥰
         </p>
 
-        <img src="https://github.com/weilok00/birthday-letter/tree/main/images/picture.jpg" alt="Hui Wen">
+        <img src="./images/picture.jpg" alt="Hui Wen">
 
         <p>我不要求你马上回应什么，<br>
-          不会让你觉得有负担。<br>
-          也不会再像以前那样急着靠近你，<br>
+          也不会让你觉得有负担。<br>
+          我不会再像以前那样急着靠近你，<br>
           但是我依然在，<br>
           只是换了一种更安静的方式。<br>
           我想给你一点空间，<br>
@@ -117,15 +107,15 @@
           能更轻松地生活，少一点烦恼，多一点微笑。<br>
           去做喜欢的事，去到想去的地方，<br>
           和让你感到安心、舒服的人在一起。<br>
-          在你喜欢的自由里，也偶尔想起，<br>
-          有个人真心祝福着你。😊
+        </p>
+
+        <p>在你喜欢的自由里，也偶尔想起，<br>
+          有一个人，一直真心祝福着你。🌹
         </p>
       </div>
     </article>
   </div>
-
-  <div class="hint">(点击多一次即可关闭)</div>
-
+  <div class="hint">（点击返回封面）</div>
 </div>
 
 <script>
@@ -142,17 +132,35 @@
     setTimeout(()=>heart.remove(), 4000);
   }, 1200);
 
-  const letter = document.getElementById('letter');
   const page = document.getElementById('page');
+  const card = document.getElementById('letter');
 
-  letter.addEventListener('click', () => {
-    page.classList.add('closing');      
-    setTimeout(() => {
-      location.href = 'index.html';     
-    }, 800);
-  });
+  const backHome = () => {
+    if (window.top && window.top !== window) {
+      window.top.postMessage({ type: 'CLOSE_STAGE' }, '*');
+    } else {
+      location.href = 'index.html';
+    }
+  };
+
+  if (card && page && page.classList) {
+    card.addEventListener('click', () => {
+      page.classList.add('closing');
+
+      let done = false;
+      const finish = () => {
+        if (done) return;
+        done = true;
+        page.removeEventListener('transitionend', finish);
+        page.removeEventListener('webkitTransitionEnd', finish);
+        backHome();
+      };
+
+      page.addEventListener('transitionend', finish, { once: true });
+      page.addEventListener('webkitTransitionEnd', finish, { once: true });
+      setTimeout(finish, 900);
+    });
+  }
 </script>
-
 </body>
 </html>
-
