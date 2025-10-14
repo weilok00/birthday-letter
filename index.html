@@ -52,12 +52,23 @@
     <div class="hint">点一下信封即可打开</div>
   </div>
 
+  
+<audio id="bgm" src="./https://github.com/weilok00/birthday-letter/blob/main/audio/canon.mp3" preload="auto" loop></audio>
+
 <script>
   const env = document.getElementById('envelope');
-  env.addEventListener('click', () => {
+  const bgm = document.getElementById('bgm');
+
+  env.addEventListener('click', async () => {
+    sessionStorage.setItem('bgmShouldPlay', '1');
+    sessionStorage.setItem('bgmTime', '0');
+
+    try { await bgm.play(); } catch(e) {}
+
     env.classList.add('open');
-    setTimeout(()=>{ location.href='wish.html'; },900);
+    setTimeout(()=>{ location.href='wish.html'; }, 900); 
   });
 </script>
+
 </body>
 </html>
