@@ -63,6 +63,62 @@
     60%  { opacity: 1; }
     100% { transform: translateY(-120vh) translateX(var(--x, 0)) rotate(var(--r, 0)); opacity:0; }
   }
+
+  @keyframes revealDown {
+    from { clip-path: inset(0 0 100% 0); }
+    to   { clip-path: inset(0); }
+  }
+
+  @keyframes fadeIn {
+    from { opacity: 0; transform: translateY(-6px); }
+    to   { opacity: 1; transform: translateY(0); }
+  }
+
+  .letter.reveal-pending,
+  .hint.reveal-pending {
+    opacity: 0;
+  }
+
+  .letter.reveal-run {
+    animation: revealDown 2s ease-out forwards;
+  }
+
+  .hint.reveal-run {
+    animation: fadeIn 2s ease-out forwards;
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .letter.reveal-run,
+    .hint.reveal-run {
+      animation: none !important;
+      opacity: 1 !important;
+      clip-path: none !important;
+    }
+  }
+
+  @keyframes segReveal {
+    from { opacity: 0; transform: translateY(-6px); clip-path: inset(0 0 100% 0); }
+    to   { opacity: 1; transform: translateY(0);     clip-path: inset(0); }
+  }
+
+  #letter .segment {
+    opacity: 0;
+    will-change: clip-path, transform, opacity;
+  }
+
+  #letter.segment-run .segment {
+    animation: segReveal var(--dur, 700ms) ease-out var(--d, 0ms) forwards;
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    #letter .segment {
+      animation: none !important;
+      opacity: 1 !important;
+      clip-path: none !important;
+      transform: none !important;
+    }
+  }
+
   #confetti {
     position: fixed;
     inset: 0;
@@ -78,7 +134,7 @@
 
   <div class="page" id="page">
     <div class="container">
-      <article class="letter" id="letter">
+      <article class="letter reveal-pending" id="letter">
         <h2>Happy Birthday~~~<br>哈比暴富Day!!! 🎂</h2>
         <div class="body">
           <p>May all of your birthday wishes come true!</p>
@@ -86,7 +142,7 @@
           <img src="./images/quby.gif" alt="quby dancing" class="gif">
         </div>
       </article>
-      <div class="hint">（点击信封继续）</div>
+     <div class="hint reveal-pending">（点击信封继续）</div>
     </div>
   </div>
 
@@ -203,6 +259,49 @@ if (card && page && page.classList) {
     setTimeout(()=>b.remove(), 13000);
   }
 })();
+</script>
+<script>
+  window.addEventListener('DOMContentLoaded', () => {
+    const letter = document.getElementById('letter');
+    const hint = document.querySelector('.hint');
+    if (letter) {
+      letter.classList.remove('reveal-pending');
+      letter.classList.add('reveal-run');
+    }
+    if (hint) {
+      hint.classList.remove('reveal-pending');
+      hint.classList.add('reveal-run');
+    }
+  });
+</script>
+<script>
+window.addEventListener('DOMContentLoaded', () => {
+  const letter = document.getElementById('letter');
+  const hint = document.querySelector('.hint');
+
+  if (!letter) return;
+
+  const blocks = letter.querySelectorAll('p, li, h1, h2, h3, h4, blockquote, .line');
+
+  const SEGMENT_DURATION_MS = 1000;
+  const STAGGER_MS = 200; 
+
+  blocks.forEach((el, i) => {
+    el.classList.add('segment');
+    el.style.setProperty('--dur', SEGMENT_DURATION_MS + 'ms');
+    el.style.setProperty('--d', (i * STAGGER_MS) + 'ms');
+  });
+
+  letter.classList.add('segment-run');
+
+  if (hint) {
+    hint.style.opacity = '0';
+    hint.animate(
+      [{opacity: 0, transform: 'translateY(-6px)'}, {opacity: 1, transform: 'translateY(0)'}],
+      { duration: SEGMENT_DURATION_MS, easing: 'ease-out', fill: 'forwards' }
+    );
+  }
+});
 </script>
 </body>
 </html>
