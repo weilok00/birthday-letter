@@ -51,6 +51,26 @@
     100%{transform:translateY(-150px) scale(1.5);opacity:0;}
   }
   .hint { color:#4b3b85; font-size:14px; text-align:center; }
+
+  @keyframes segReveal {
+    from { opacity: 0; transform: translateY(-6px); clip-path: inset(0 0 100% 0); }
+    to   { opacity: 1; transform: translateY(0); clip-path: inset(0); }
+  }
+  #letter .segment {
+    opacity: 0;
+    will-change: clip-path, transform, opacity;
+  }
+  #letter.segment-run .segment {
+    animation: segReveal var(--dur, 700ms) ease-out var(--d, 0ms) forwards;
+  }
+  @media (prefers-reduced-motion: reduce) {
+    #letter .segment {
+      animation: none !important;
+      opacity: 1 !important;
+      clip-path: none !important;
+      transform: none !important;
+    }
+  }
 </style>
 </head>
 <body>
@@ -148,7 +168,6 @@
 
   const page = document.getElementById('page');
   const card = document.getElementById('letter');
-
   const backHome = () => {
     if (window.top && window.top !== window) {
       window.top.postMessage({ type: 'CLOSE_STAGE' }, '*');
@@ -156,25 +175,43 @@
       location.href = 'index.html';
     }
   };
-
   if (card && page && page.classList) {
     card.addEventListener('click', () => {
       page.classList.add('closing');
-
       let done = false;
       const finish = () => {
         if (done) return;
         done = true;
-        page.removeEventListener('transitionend', finish);
-        page.removeEventListener('webkitTransitionEnd', finish);
         backHome();
       };
-
       page.addEventListener('transitionend', finish, { once: true });
-      page.addEventListener('webkitTransitionEnd', finish, { once: true });
       setTimeout(finish, 900);
     });
   }
+  window.addEventListener('DOMContentLoaded', () => {
+    const letter = document.getElementById('letter');
+    const hint = document.querySelector('.hint');
+    if (!letter) return;
+
+    const blocks = letter.querySelectorAll('p, li, h1, h2, h3, h4, blockquote, .line, .highlight');
+    const SEGMENT_DURATION_MS = 1000;
+    const STAGGER_MS = 200;
+
+    blocks.forEach((el, i) => {
+      el.classList.add('segment');
+      el.style.setProperty('--dur', SEGMENT_DURATION_MS + 'ms');
+      el.style.setProperty('--d', (i * STAGGER_MS) + 'ms');
+    });
+    letter.classList.add('segment-run');
+
+    if (hint) {
+      hint.style.opacity = '0';
+      hint.animate(
+        [{opacity: 0, transform: 'translateY(-6px)'}, {opacity: 1, transform: 'translateY(0)'}],
+        { duration: SEGMENT_DURATION_MS, easing: 'ease-out', fill: 'forwards' }
+      );
+    }
+  });
 </script>
 </body>
 </html>
